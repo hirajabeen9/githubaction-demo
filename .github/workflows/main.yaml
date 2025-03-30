@@ -1,4 +1,4 @@
-name: Starter Workflow
+name: Starter Workflow-1
 
 on:
   push:
