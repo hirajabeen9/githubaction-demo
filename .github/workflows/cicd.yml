@@ -1,4 +1,4 @@
-name: CI/CD Pipeline-for testing
+name: CI/CD Pipeline-for Testing
 
 on:
   push:
@@ -28,11 +28,11 @@ jobs:
       - name: Run tests
         run: echo "Running tests... (Replace this with actual test commands)"
 
-  # CD: Deploy only if Build & Test succeed
+  # CD: Sequential Deployment Flow
   deploy-dev:
     runs-on: ubuntu-latest
-    needs: [test]  
-    if: github.ref == 'refs/heads/dev'  # Deploy only for the dev branch
+    needs: [test]
+    if: github.ref == 'refs/heads/dev'  # Deploy to Dev first
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,8 +42,8 @@ jobs:
 
   deploy-qa:
     runs-on: ubuntu-latest
-    needs: [test]  
-    if: github.ref == 'refs/heads/qa'  # Deploy only for the QA branch
+    needs: [deploy-dev]  # Only runs if Dev deployment succeeds
+    if: github.ref == 'refs/heads/qa'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,11 +53,11 @@ jobs:
 
   deploy-prod:
     runs-on: ubuntu-latest
-    needs: [test]  
-    if: github.ref == 'refs/heads/main'  # Deploy only for the main branch (Prod)
+    needs: [deploy-qa]  # Only runs if QA deployment succeeds
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Prod/main Environment
+      - name: Deploy to Production
         run: echo "Deploying to Production..."
